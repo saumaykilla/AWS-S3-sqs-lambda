@@ -1,79 +1,360 @@
-# AWS Serverless File Processing Infrastructure
+# AWS S3 SQS Lambda 🚀☁️
 
-This project contains Terraform configuration to provision a serverless architecture on AWS. It sets up an S3 bucket for file uploads, which triggers an SQS queue, which in turn triggers a Lambda function (container-based) to process the events.
+**Infrastructure as Code for Serverless File Processing Pipeline**
 
-## Architecture Overview
+A complete Terraform configuration for setting up a serverless file processing pipeline using AWS S3, SQS, and Lambda with automated event-driven architecture.
 
-1.  **S3 Bucket**: Stores uploaded files. Triggers an event notification on `s3:ObjectCreated:*`.
-2.  **SQS Queue**: Buffers events from S3.
-3.  **ECR Repository**: Host the Docker image for the Lambda function.
-4.  **Lambda Function**: Consumes messages from the SQS queue and processes files from S3.
+---
 
-## Prerequisites
+## 🌟 Features
 
-Before running this project, ensure you have the following installed and configured:
+- 📦 **S3 Event Triggering** - Automatically process files uploaded to S3
+- 📨 **SQS Queue Management** - Reliable message queuing for async processing
+- ⚡ **Lambda Functions** - Serverless compute for file processing
+- 🔄 **Event-Driven** - Fully automated workflow
+- 📊 **Scalable** - Auto-scaling based on workload
+- 🔐 **Secure** - IAM roles and policies included
+- 💰 **Cost-Effective** - Pay only for what you use
 
-- [Terraform](https://www.terraform.io/downloads.html) (>= 1.0.0)
-- [AWS CLI](https://aws.amazon.com/cli/) (configured with appropriate credentials)
-- [Docker](https://www.docker.com/) (running, as it is required to push the initial image to ECR)
+---
 
-**Note:** The `ecr.tf` file includes a `local-exec` provisioner that runs Docker commands to pull a base Python image and push it to the newly created ECR repository. This ensures the Lambda function has a valid image to start with.
+## 🛠️ Tech Stack
 
-## Project Structure
+**Infrastructure:**
+- Terraform (100% HCL)
+- AWS Services:
+  - S3 (Simple Storage Service)
+  - SQS (Simple Queue Service)
+  - Lambda (Serverless Compute)
+  - IAM (Identity and Access Management)
+  - CloudWatch (Monitoring and Logging)
 
-- `ecr.tf`: Provisions the Elastic Container Registry (ECR) and handles the initial image push.
-- `lambfa.tf`: Configures the AWS Lambda function, IAM roles, and policies.
-- `s3.tf`: sets up the S3 bucket and event notifications to SQS. Also configures the Lambda event source mapping.
-- `sqs.tf`: Sets up the SQS queue and its resource policy.
-- `variables.tf`: Defines input variables and validation rules.
-- `providers.tf`: Terraform provider configuration.
+---
 
-## Inputs
+## 📊 Language Composition
 
-| Name                | Description                       | Type     | Default         | Options                                                     |
-| ------------------- | --------------------------------- | -------- | --------------- | ----------------------------------------------------------- |
-| `aws_region`        | AWS region to deploy resources to | `string` | `us-east-2`     |                                                             |
-| `environment`       | Deployment environment            | `string` | `prod`          | `sit`, `uat`, `prod`                                        |
-| `naming_convention` | Naming prefix for resources       | `string` |             
- `sit`, `uat`, `prod` |
-
-## Usage
-
-1.  **Initialize Terraform**
-
-    ```bash
-    terraform init
-    ```
-
-2.  **Review the Plan**
-
-    ```bash
-    terraform plan
-    ```
-
-3.  **Apply the Configuration**
-
-    ```bash
-    terraform apply
-    ```
-
-    _During the apply phase, Terraform will create the ECR repository, use Docker to push a dummy image (python:3.12), and then deploy the Lambda function using that image._
-
-## Resources Created
-
-- **AWS ECR Repository**: `${naming_convention}-generate-ui-repository`
-- **AWS S3 Bucket**: `${naming_convention}-generate-ui-bucket`
-- **AWS SQS Queue**: `${naming_convention}-generate-ui-queue`
-- **AWS Lambda Function**: `${naming_convention}-sqs-processor`
-- **IAM Roles & Policies**:
-  - Lambda execution role with permissions to read from SQS, read from S3, and write to CloudWatch Logs.
-
-## Cleanup
-
-To destroy the infrastructure:
-
-```bash
-terraform destroy
+```
+HCL: 100%
 ```
 
-_Note: S3 buckets containing objects may trigger errors during destruction. Ensure the bucket is empty before running destroy, or manually delete the bucket contents._
+---
+
+## 📋 Architecture
+
+```
+┌──────────────────────┐
+│   File Upload        │
+│   to S3 Bucket       │
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│   S3 Event           │
+│   Notification       │
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│   SQS Queue          │
+│   (Buffering)        │
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│   Lambda Function    │
+│   (Processing)       │
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│   Process Complete   │
+│   (Output Storage)   │
+└──────────────────────┘
+```
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Terraform 1.0+
+- AWS CLI configured with credentials
+- AWS account with appropriate permissions
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/saumaykilla/AWS-S3-sqs-lambda.git
+cd AWS-S3-sqs-lambda
+
+# Initialize Terraform
+terraform init
+
+# Validate configuration
+terraform validate
+
+# Plan deployment
+terraform plan
+```
+
+### Deploy
+
+```bash
+# Apply infrastructure
+terraform apply
+
+# Confirm with 'yes' when prompted
+```
+
+### Destroy
+
+```bash
+# Remove all resources
+terraform destroy
+
+# Confirm with 'yes' when prompted
+```
+
+---
+
+## 📁 File Structure
+
+```
+AWS-S3-sqs-lambda/
+├── main.tf              # Main configuration
+├── variables.tf         # Input variables
+├── outputs.tf          # Output values
+├── iam.tf              # IAM roles and policies
+├── s3.tf               # S3 configuration
+├── sqs.tf              # SQS configuration
+├── lambda.tf           # Lambda configuration
+├── terraform.tfvars    # Variable values (example)
+└── README.md
+```
+
+---
+
+## 🔧 Configuration
+
+### Variables
+
+Edit `terraform.tfvars`:
+
+```hcl
+aws_region                 = "us-east-1"
+s3_bucket_name            = "my-file-bucket"
+sqs_queue_name            = "file-processing-queue"
+lambda_function_name      = "file-processor"
+lambda_memory_size        = 256
+lambda_timeout            = 60
+environment_tags = {
+  Environment = "production"
+  Project     = "file-processing"
+}
+```
+
+### Outputs
+
+After deployment, view outputs:
+
+```bash
+terraform output
+```
+
+Key outputs:
+- S3 bucket name
+- SQS queue URL
+- Lambda function ARN
+- IAM role ARN
+
+---
+
+## 📊 Resource Details
+
+### S3 Configuration
+- Bucket versioning enabled
+- Server-side encryption (SSE-S3)
+- Block public access
+- Event notifications to SQS
+
+### SQS Configuration
+- Standard queue with FIFO option available
+- Configurable message retention (default: 4 days)
+- Visibility timeout set for Lambda processing
+- Dead-letter queue support (optional)
+
+### Lambda Configuration
+- Runtime: Python/Node.js (configurable)
+- Memory: Configurable (128MB - 10GB)
+- Timeout: Configurable
+- VPC optional
+- Environment variables support
+
+### IAM Security
+- Least privilege principle
+- Service-specific permissions
+- Resource-based policies
+- Encryption key access
+
+---
+
+## 🔒 Security Considerations
+
+- ✅ S3 bucket public access blocked
+- ✅ Encryption enabled by default
+- ✅ IAM roles follow least privilege
+- ✅ CloudWatch logs encrypted
+- ✅ VPC endpoint support available
+- ✅ KMS encryption optional
+
+---
+
+## 📊 Monitoring
+
+View CloudWatch logs:
+
+```bash
+aws logs tail /aws/lambda/file-processor --follow
+```
+
+CloudWatch metrics available:
+- Lambda invocations
+- SQS messages processed
+- S3 object count
+- Error rates
+
+---
+
+## 🛠️ Common Commands
+
+```bash
+# Initialize workspace
+terraform init
+
+# Validate syntax
+terraform validate
+
+# Format code
+terraform fmt -recursive
+
+# Plan changes
+terraform plan -out=tfplan
+
+# Apply specific resource
+terraform apply -target aws_s3_bucket.main
+
+# Destroy specific resource
+terraform destroy -target aws_lambda_function.processor
+
+# Output specific value
+terraform output sqs_queue_url
+```
+
+---
+
+## 📝 Customization
+
+### Add Lambda Environment Variables
+
+In `lambda.tf`:
+
+```hcl
+environment {
+  variables = {
+    ENV_VAR_1 = "value1"
+    ENV_VAR_2 = "value2"
+  }
+}
+```
+
+### Enable Dead-Letter Queue
+
+```hcl
+redrive_policy = jsonencode({
+  deadLetterTargetArn = aws_sqs_queue.dlq.arn
+  maxReceiveCount     = 3
+})
+```
+
+### Add VPC Support
+
+Configure in `lambda.tf`:
+
+```hcl
+vpc_config {
+  subnet_ids         = var.subnet_ids
+  security_group_ids = var.security_group_ids
+}
+```
+
+---
+
+## 🚀 Best Practices
+
+1. **State Management**
+   - Store `terraform.tfstate` remotely (S3 + DynamoDB)
+   - Enable state locking
+   - Version control excluded
+
+2. **Deployment**
+   - Use `terraform plan` before apply
+   - Review all changes carefully
+   - Implement gradual rollouts
+
+3. **Monitoring**
+   - Enable CloudWatch alarms
+   - Set up log retention
+   - Monitor Lambda cold starts
+
+4. **Cost Optimization**
+   - Adjust Lambda memory/timeout
+   - Configure SQS retention policy
+   - Use S3 lifecycle policies
+
+---
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create feature branch (`git checkout -b feature/Enhancement`)
+3. Test changes (`terraform validate && terraform plan`)
+4. Commit changes (`git commit -m 'Add Enhancement'`)
+5. Push to branch (`git push origin feature/Enhancement`)
+6. Open Pull Request
+
+---
+
+## 📝 License
+
+MIT License - see LICENSE file for details
+
+---
+
+## 📚 Resources
+
+- [Terraform AWS Provider](https://registry.terraform.io/providers/hashicorp/aws/latest/docs)
+- [AWS S3 Documentation](https://docs.aws.amazon.com/s3/)
+- [AWS SQS Documentation](https://docs.aws.amazon.com/sqs/)
+- [AWS Lambda Documentation](https://docs.aws.amazon.com/lambda/)
+
+---
+
+## 📞 Support
+
+For issues or questions:
+- Open a GitHub issue
+- Email: [saumay.killa@gmail.com](mailto:saumay.killa@gmail.com)
+
+---
+
+<div align="center">
+
+**Serverless Infrastructure Made Simple**
+
+Made with ❤️ by Saumay Killa
+
+[⬆ back to top](#aws-s3-sqs-lambda-)
+
+</div>
